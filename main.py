@@ -1,4 +1,5 @@
 import gymnasium as gym
+from gymnasium.envs.toy_text.frozen_lake import generate_random_map
 import os
 
 from agents.QLearningAgent import QLearningAgent
@@ -23,8 +24,8 @@ def run_agent(agent_class, agent_name, env, **agent_params):
     print(f"Finished running {agent_name} agent.\n")
 
 def main():
-    gym.make('FrozenLake-v1', desc=None, map_name="6x6", is_slippery=True)
-    
+    env = gym.make('FrozenLake-v1', desc=generate_random_map(size=8), is_slippery=True, render_mode='rgb_array')
+
     agents = [
         {
             "name": "random",
