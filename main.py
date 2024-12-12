@@ -2,7 +2,7 @@ import gymnasium as gym
 import os
 
 from agents.QLearningAgent import QLearningAgent
-from agents.LinearRegressionAgent import LinearRegressionAgent
+from agents.FuncApproxLRAgent import FuncApproxLRAgent
 
 def run_agent(agent_class, agent_name, env, **agent_params):
     """
@@ -39,15 +39,15 @@ def main():
             }
         },
         {
-            "name": "linear_regression",
-            "class": LinearRegressionAgent,
+            "name": "func_approx_lr",
+            "class": FuncApproxLRAgent,
             "params": {
                 "learning_rate": 0.01,
                 "discount_factor": 0.95,
                 "epsilon": 1.0,
                 "epsilon_decay": 0.99,
                 "epsilon_min": 0.01,
-                "results_dir": 'results/linear_regression'
+                "results_dir": 'results/func_approx_lr'
             }
         }
     ]

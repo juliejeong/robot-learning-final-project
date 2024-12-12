@@ -3,7 +3,7 @@ import gymnasium as gym
 import matplotlib.pyplot as plt
 import os
 
-class LinearRegressionAgent:
+class FuncApproxLRAgent:
     def __init__(self, 
                  env, 
                  learning_rate=0.01, 
