@@ -2,6 +2,7 @@ import numpy as np
 import gymnasium as gym
 import matplotlib.pyplot as plt
 import os
+from sklearn.preprocessing import StandardScaler
 
 class FuncApproxLRAgent:
     def __init__(self, 
@@ -29,6 +30,11 @@ class FuncApproxLRAgent:
         # Initialize weights for linear approximation
         num_features = env.observation_space.n * env.action_space.n
         self.weights = np.zeros(num_features)
+
+        # Feature scaling for stability
+        self.scaler = StandardScaler()
+        sample_features = np.eye(num_features)
+        self.scaler.fit(sample_features)
         
         # Tracking rewards
         self.episode_rewards = []
@@ -40,7 +46,7 @@ class FuncApproxLRAgent:
         feature = np.zeros(self.env.observation_space.n * self.env.action_space.n)
         index = state * self.env.action_space.n + action
         feature[index] = 1
-        return feature
+        return self.scaler.transform([feature])[0]  # Scale feature vector
     
     def predict(self, state, action):
         """
@@ -180,15 +186,10 @@ class FuncApproxLRAgent:
             # Choose best action based on learned weights
             q_values = [self.predict(state, action) for action in range(self.env.action_space.n)]
             action = np.argmax(q_values)
-            
-            # Take action
             state, reward, terminated, truncated, _ = record_env.step(action)
             done = terminated or truncated
-            
             total_reward += reward
         
         print(f"Best Play Recorded. Total Reward: {total_reward}")
         print(f"Video saved in {video_dir}")
-        
-        # Close the recording environment
         record_env.close()

@@ -6,3 +6,4 @@ moviepy
 imageio-ffmpeg
 torch
 tensorflow
+scikit-learn
