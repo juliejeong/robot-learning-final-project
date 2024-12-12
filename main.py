@@ -14,13 +14,17 @@ def run_agent(agent_class, agent_name, env, **agent_params):
     results_dir = agent_params.get("results_dir", f'results/{agent_name}')
     os.makedirs(results_dir, exist_ok=True)
     agent = agent_class(env, **agent_params)
+
     rewards = agent.train(num_episodes=10000)
     agent.evaluate()
     agent.plot_rewards()
     agent.record_best_play();
+
     print(f"Finished running {agent_name} agent.\n")
+
 def main():
-    env = gym.make('FrozenLake-v1', render_mode='rgb_array')
+    gym.make('FrozenLake-v1', desc=None, map_name="6x6", is_slippery=True)
+    
     agents = [
         {
             "name": "random",
@@ -62,6 +66,7 @@ def main():
             }
         }
     ]
+
     # Run each agent sequentially
     for agent_config in agents:
         run_agent(
@@ -70,7 +75,9 @@ def main():
             env=env,
             **agent_config["params"]
         )
+
     # Close the environment
     env.close()
+
 if __name__ == "__main__":
     main()

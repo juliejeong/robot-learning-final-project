@@ -2,6 +2,7 @@ import os
 import numpy as np
 import matplotlib.pyplot as plt
 import gymnasium as gym
+
 class RandomAgent:
     def __init__(self, env, results_dir='results/random_agent'):
         """
@@ -11,11 +12,13 @@ class RandomAgent:
         self.results_dir = results_dir
         os.makedirs(self.results_dir, exist_ok=True)
         self.episode_rewards = []
+
     def choose_action(self, state):
         """
         Choose a random action from the action space.
         """
         return self.env.action_space.sample()
+
     def train(self, num_episodes=100):
         """
         Train the random agent by running it for a specified number of episodes.
@@ -35,6 +38,7 @@ class RandomAgent:
                 avg_reward = np.mean(self.episode_rewards[-10:])
                 print(f"Episode {episode}, Average Reward: {avg_reward:.2f}")
         return self.episode_rewards
+
     def evaluate(self, num_eval_episodes=100):
         """
         Evaluate the random agent by calculating average rewards over multiple episodes.
@@ -51,6 +55,7 @@ class RandomAgent:
         avg_reward = total_rewards / num_eval_episodes
         print(f"Evaluation Complete: Average Reward = {avg_reward:.2f}")
         return avg_reward
+
     def plot_rewards(self):
         """
         Plot and save the cumulative average rewards for the training episodes.
@@ -67,6 +72,7 @@ class RandomAgent:
         plt.savefig(plot_path)
         plt.close()
         print(f"Rewards plot saved to {plot_path}")
+        
     def record_best_play(self):
         """
         Record a random gameplay episode as a video.
