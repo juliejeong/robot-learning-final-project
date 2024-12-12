@@ -27,6 +27,7 @@ def run_agent(agent_class, agent_name, env, **agent_params):
 
 def main(agent_name = "q_learning", size = 4, is_slippery = False):
     env = gym.make('FrozenLake-v1', desc=generate_random_map(size = size), is_slippery = is_slippery, render_mode = 'rgb_array')
+    env.action_space.seed(42)
 
     # Define agents
     agents = {
@@ -113,7 +114,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--size",
         type=int,
-        default=8,
+        default=5,
         help="Specify the size of the map."
     )
     parser.add_argument(
