@@ -2,11 +2,7 @@ import gymnasium as gym
 from agents.QLearningAgent import QLearningAgent
 import os
 
-def main():
-    # Create results directory
-    results_dir = 'results/qlearning'
-    os.makedirs(results_dir, exist_ok=True)
-    
+def main():    
     # Render mode is important for video recording
     env = gym.make('FrozenLake-v1', render_mode='rgb_array')
     
@@ -16,8 +12,7 @@ def main():
         discount_factor=0.95, 
         epsilon=1.0, 
         epsilon_decay=0.99, 
-        epsilon_min=0.01,
-        results_dir=results_dir
+        epsilon_min=0.01
     )
     
     rewards = agent.train(num_episodes=10000)

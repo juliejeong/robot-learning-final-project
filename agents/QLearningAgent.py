@@ -11,7 +11,7 @@ class QLearningAgent:
                  epsilon=1.0, 
                  epsilon_decay=0.99, 
                  epsilon_min=0.01,
-                 results_dir='results/qlearning'):
+                 results_dir='results/q_learning'):
         """
         Initialize Q-Learning Agent with organized results directory
         """
