@@ -1,8 +1,11 @@
 import gymnasium as gym
 import os
+
 from agents.QLearningAgent import QLearningAgent
 from agents.FuncApproxLRAgent import FuncApproxLRAgent
 from agents.RandomAgent import RandomAgent
+from agents.RandomBellmanAgent import RandomBellmanAgent
+
 def run_agent(agent_class, agent_name, env, **agent_params):
     """
     Train, evaluate, and save results for an agent.
@@ -24,6 +27,14 @@ def main():
             "class": RandomAgent,
             "params": {
                 "results_dir": 'results/random'
+            }
+        },
+        {
+            "name": "random_bellman",
+            "class": RandomBellmanAgent,
+            "params": {
+                "discount_factor": 0.95,
+                "results_dir": 'results/random_bellman'
             }
         },
         {
