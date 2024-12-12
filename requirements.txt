@@ -5,3 +5,4 @@ matplotlib
 moviepy
 imageio-ffmpeg
 torch
+scikit-learn
