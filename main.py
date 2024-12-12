@@ -145,13 +145,13 @@ if __name__ == "__main__":
     parser.add_argument(
         "--size",
         type=int,
-        default=4,
+        default=8,
         help="Specify the size of the map."
     )
     parser.add_argument(
         "--is_slippery", 
         type=bool, 
-        default=False, 
+        default=True, 
         help="Specify whether the environment should be slippery (True or False)."
     )
     args = parser.parse_args()
