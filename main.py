@@ -1,15 +1,30 @@
 import gymnasium as gym
-from gym.envs.toy_text.frozen_lake import generate_random_map
+from agents.QLearningAgent import QLearningAgent
+import os
 
-env = gym.make('FrozenLake-v1', desc=generate_random_map(size=10), is_slippery=True, render_mode="human")
-env.action_space.seed(42)
+def main():
+    # Create results directory
+    results_dir = 'results/qlearning'
+    os.makedirs(results_dir, exist_ok=True)
+    
+    # Render mode is important for video recording
+    env = gym.make('FrozenLake-v1', render_mode='rgb_array')
+    
+    agent = QLearningAgent(
+        env, 
+        learning_rate=0.8, 
+        discount_factor=0.95, 
+        epsilon=1.0, 
+        epsilon_decay=0.99, 
+        epsilon_min=0.01,
+        results_dir=results_dir
+    )
+    
+    rewards = agent.train(num_episodes=10000)
+    agent.evaluate()
+    agent.plot_rewards()
+    agent.record_best_play()
+    env.close()
 
-observation, info = env.reset(seed=42)
-
-for _ in range(1000):
-    observation, reward, terminated, truncated, info = env.step(env.action_space.sample())
-
-    if terminated or truncated:
-        observation, info = env.reset()
-
-env.close()
+if __name__ == "__main__":
+    main()
