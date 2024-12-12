@@ -5,3 +5,5 @@ matplotlib
 moviepy
 imageio-ffmpeg
 torch
+tensorflow
+tensorflow_probability 

@@ -8,6 +8,7 @@ from agents.RandomBellmanAgent import RandomBellmanAgent
 from agents.QLearningAgent import QLearningAgent
 from agents.FuncApproxLRAgent import FuncApproxLRAgent
 from agents.ActorCriticAgent import ActorCriticAgent
+from agents.REINFORCEAgent import REINFORCEAgent
 
 def run_agent(agent_class, agent_name, env, **agent_params):
     """
@@ -71,6 +72,14 @@ def main(agent_name=None):
                 "learning_rate": 0.01,
                 "gamma": 0.99,
                 "results_dir": 'results/actor_critic'
+            }
+        },
+        "reinforce": {
+            "class": REINFORCEAgent,
+            "params": {
+            "learning_rate": 0.01,
+            "gamma": 0.99,
+            "results_dir": 'results/reinforce'
             }
         }
     }
