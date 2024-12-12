@@ -4,3 +4,4 @@ pygame
 matplotlib
 moviepy
 imageio-ffmpeg
+torch

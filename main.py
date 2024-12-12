@@ -2,10 +2,11 @@ import gymnasium as gym
 from gymnasium.envs.toy_text.frozen_lake import generate_random_map
 import os
 
-from agents.QLearningAgent import QLearningAgent
-from agents.FuncApproxLRAgent import FuncApproxLRAgent
 from agents.RandomAgent import RandomAgent
 from agents.RandomBellmanAgent import RandomBellmanAgent
+from agents.QLearningAgent import QLearningAgent
+from agents.FuncApproxLRAgent import FuncApproxLRAgent
+from agents.ActorCriticAgent import ActorCriticAgent
 
 def run_agent(agent_class, agent_name, env, **agent_params):
     """
@@ -19,7 +20,7 @@ def run_agent(agent_class, agent_name, env, **agent_params):
     rewards = agent.train(num_episodes=10000)
     agent.evaluate()
     agent.plot_rewards()
-    agent.record_best_play();
+    agent.record_best_play()
 
     print(f"Finished running {agent_name} agent.\n")
 
@@ -64,6 +65,15 @@ def main():
                 "epsilon_decay": 0.99,
                 "epsilon_min": 0.01,
                 "results_dir": 'results/func_approx_lr'
+            }
+        },
+        {
+            "name": "actor_critic",
+            "class": ActorCriticAgent,
+            "params": {
+                "learning_rate": 0.01,
+                "gamma": 0.99,
+                "results_dir": 'results/actor_critic'
             }
         }
     ]
