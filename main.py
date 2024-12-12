@@ -2,13 +2,17 @@ import gymnasium as gym
 from gymnasium.envs.toy_text.frozen_lake import generate_random_map
 import os
 import argparse
+import torch
+import random
+import numpy as np
 
 from agents.RandomAgent import RandomAgent
 from agents.RandomBellmanAgent import RandomBellmanAgent
 from agents.QLearningAgent import QLearningAgent
 from agents.FuncApproxLRAgent import FuncApproxLRAgent
 from agents.ActorCriticAgent import ActorCriticAgent
-from agents.REINFORCEAgent import REINFORCEAgent
+from agents.REINFORCEAgent import ReinforceAgent
+
 
 def run_agent(agent_class, agent_name, env, **agent_params):
     """
@@ -26,8 +30,23 @@ def run_agent(agent_class, agent_name, env, **agent_params):
 
     print(f"Finished running {agent_name} agent.\n")
 
+seed = 695
+
+# Setting the seed to ensure reproducability
+def reseed(seed):
+    torch.manual_seed(seed)
+    random.seed(seed)
+    np.random.seed(seed)
+
 def main(agent_name = "q_learning", size = 4, is_slippery = False):
+
     env = gym.make('FrozenLake-v1', desc=generate_random_map(size = size), is_slippery = is_slippery, render_mode = 'rgb_array')
+
+    reseed(seed)
+    env.seed(seed)
+    env.action_space.seed(seed)
+    env.observation_space.seed(seed)
+    env.reset()
 
     # Define agents
     agents = {
@@ -75,10 +94,14 @@ def main(agent_name = "q_learning", size = 4, is_slippery = False):
             }
         },
         "reinforce": {
-            "class": REINFORCEAgent,
+            "class": ReinforceAgent,
             "params": {
-            "learning_rate": 0.01,
+            "state_dim": env.observation_space.shape[0],
+            "action_dim": env.action_space.n,
+            "hidden_dim": 128,
+            "seed": seed,
             "gamma": 0.99,
+            "learning_rate": 0.01,
             "results_dir": 'results/reinforce'
             }
         }
