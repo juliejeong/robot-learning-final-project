@@ -6,3 +6,5 @@ moviepy
 imageio-ffmpeg
 torch
 scikit-learn
+tensorflow
+tensorflow_probability 
