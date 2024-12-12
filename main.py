@@ -25,8 +25,8 @@ def run_agent(agent_class, agent_name, env, **agent_params):
 
     print(f"Finished running {agent_name} agent.\n")
 
-def main(agent_name=None):
-    env = gym.make('FrozenLake-v1', desc=generate_random_map(size=8), is_slippery=True, render_mode='rgb_array')
+def main(agent_name=None, is_slippery=True):
+    env = gym.make('FrozenLake-v1', desc=generate_random_map(size=8), is_slippery=is_slippery, render_mode='rgb_array')
 
     # Define agents
     agents = {
@@ -100,7 +100,7 @@ def main(agent_name=None):
     # Close the environment
     env.close()
 
-# Run specific agent: python main.py --agent q_learning
+# Run specific agent: python main.py --agent q_learning --is_slippery False
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Run RL agents on FrozenLake.")
@@ -110,6 +110,11 @@ if __name__ == "__main__":
         default=None, 
         help="Specify the name of the agent to run (e.g., 'q_learning', 'actor_critic'). Run all agents if not specified."
     )
+    parser.add_argument(
+        "--is_slippery", 
+        type=bool, 
+        default=True, 
+        help="Specify whether the environment should be slippery (True or False)."
+    )
     args = parser.parse_args()
-    main(agent_name=args.agent)
-
+    main(agent_name=args.agent, is_slippery=args.is_slippery)
