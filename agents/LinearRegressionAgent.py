@@ -125,3 +125,70 @@ class LinearRegressionAgent:
         plt.close()
         
         print(f"Rewards plot saved to {plot_path}")
+
+    def evaluate(self, num_eval_episodes=100):
+        """
+        Evaluate the trained agent and save results
+        """
+        total_rewards = 0
+        for _ in range(num_eval_episodes):
+            state, _ = self.env.reset()
+            done = False
+            while not done:
+                # Choose the best action based on weights
+                q_values = [self.predict(state, action) for action in range(self.env.action_space.n)]
+                action = np.argmax(q_values)
+                state, reward, terminated, truncated, _ = self.env.step(action)
+                done = terminated or truncated
+                total_rewards += reward
+        
+        avg_reward = total_rewards / num_eval_episodes
+        print(f"Average Reward over {num_eval_episodes} evaluation episodes: {avg_reward}")
+        
+        # Save evaluation results
+        data_dir = os.path.join(self.results_dir, 'data')
+        os.makedirs(data_dir, exist_ok=True)
+        
+        with open(os.path.join(data_dir, 'evaluation_results.txt'), 'w') as f:
+            f.write(f"Average Reward: {avg_reward}\n")
+            f.write(f"Number of Evaluation Episodes: {num_eval_episodes}")
+        
+        return avg_reward
+
+    def record_best_play(self):
+        """
+        Record the best gameplay episode
+        """
+        # Create video subdirectory
+        video_dir = os.path.join(self.results_dir, 'videos')
+        os.makedirs(video_dir, exist_ok=True)
+        
+        # Wrap environment with video recorder
+        record_env = gym.wrappers.RecordVideo(
+            self.env, 
+            video_dir, 
+            episode_trigger=lambda episode: True,  # Record all episodes
+            name_prefix='best_linear_play'
+        )
+        
+        # Reset environment and play the best episode
+        state, _ = record_env.reset()
+        done = False
+        total_reward = 0
+        
+        while not done:
+            # Choose best action based on learned weights
+            q_values = [self.predict(state, action) for action in range(self.env.action_space.n)]
+            action = np.argmax(q_values)
+            
+            # Take action
+            state, reward, terminated, truncated, _ = record_env.step(action)
+            done = terminated or truncated
+            
+            total_reward += reward
+        
+        print(f"Best Play Recorded. Total Reward: {total_reward}")
+        print(f"Video saved in {video_dir}")
+        
+        # Close the recording environment
+        record_env.close()
