@@ -23,14 +23,12 @@ def run_agent(agent_class, agent_name, env, **agent_params):
     os.makedirs(results_dir, exist_ok=True)
     agent = agent_class(env, **agent_params)
 
-    rewards = agent.train(num_episodes=10000)
+    rewards = agent.train(num_episodes=1000)
     agent.evaluate()
     agent.plot_rewards()
     agent.record_best_play()
 
     print(f"Finished running {agent_name} agent.\n")
-
-seed = 695
 
 # Setting the seed to ensure reproducability
 def reseed(seed):
@@ -42,10 +40,7 @@ def main(agent_name = "q_learning", size = 4, is_slippery = False):
 
     env = gym.make('FrozenLake-v1', desc=generate_random_map(size = size), is_slippery = is_slippery, render_mode = 'rgb_array')
 
-    reseed(seed)
-    env.seed(seed)
-    env.action_space.seed(seed)
-    env.observation_space.seed(seed)
+    reseed(695)
     env.reset()
 
     # Define agents
@@ -96,10 +91,9 @@ def main(agent_name = "q_learning", size = 4, is_slippery = False):
         "reinforce": {
             "class": ReinforceAgent,
             "params": {
-            "state_dim": env.observation_space.shape[0],
+            "state_dim": env.observation_space.n,
             "action_dim": env.action_space.n,
-            "hidden_dim": 128,
-            "seed": seed,
+            "hidden_dim": 16,
             "gamma": 0.99,
             "learning_rate": 0.01,
             "results_dir": 'results/reinforce'
