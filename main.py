@@ -1,9 +1,8 @@
 import gymnasium as gym
 import os
-
 from agents.QLearningAgent import QLearningAgent
 from agents.FuncApproxLRAgent import FuncApproxLRAgent
-
+from agents.RandomAgent import RandomAgent
 def run_agent(agent_class, agent_name, env, **agent_params):
     """
     Train, evaluate, and save results for an agent.
@@ -11,21 +10,22 @@ def run_agent(agent_class, agent_name, env, **agent_params):
     print(f"Running {agent_name} agent...")
     results_dir = agent_params.get("results_dir", f'results/{agent_name}')
     os.makedirs(results_dir, exist_ok=True)
-    
     agent = agent_class(env, **agent_params)
-    
     rewards = agent.train(num_episodes=10000)
     agent.evaluate()
     agent.plot_rewards()
     agent.record_best_play();
-    
     print(f"Finished running {agent_name} agent.\n")
-
-
 def main():
     env = gym.make('FrozenLake-v1', render_mode='rgb_array')
-    
     agents = [
+        {
+            "name": "random",
+            "class": RandomAgent,
+            "params": {
+                "results_dir": 'results/random'
+            }
+        },
         {
             "name": "q_learning",
             "class": QLearningAgent,
@@ -51,7 +51,6 @@ def main():
             }
         }
     ]
-    
     # Run each agent sequentially
     for agent_config in agents:
         run_agent(
@@ -60,9 +59,7 @@ def main():
             env=env,
             **agent_config["params"]
         )
-    
     # Close the environment
     env.close()
-
 if __name__ == "__main__":
     main()
