@@ -1,6 +1,7 @@
 import gymnasium as gym
 from gymnasium.envs.toy_text.frozen_lake import generate_random_map
 import os
+import argparse
 
 from agents.RandomAgent import RandomAgent
 from agents.RandomBellmanAgent import RandomBellmanAgent
@@ -24,27 +25,25 @@ def run_agent(agent_class, agent_name, env, **agent_params):
 
     print(f"Finished running {agent_name} agent.\n")
 
-def main():
+def main(agent_name=None):
     env = gym.make('FrozenLake-v1', desc=generate_random_map(size=8), is_slippery=True, render_mode='rgb_array')
 
-    agents = [
-        {
-            "name": "random",
+    # Define agents
+    agents = {
+        "random": {
             "class": RandomAgent,
             "params": {
                 "results_dir": 'results/random'
             }
         },
-        {
-            "name": "random_bellman",
+        "random_bellman": {
             "class": RandomBellmanAgent,
             "params": {
                 "discount_factor": 0.95,
                 "results_dir": 'results/random_bellman'
             }
         },
-        {
-            "name": "q_learning",
+        "q_learning": {
             "class": QLearningAgent,
             "params": {
                 "learning_rate": 0.8,
@@ -55,8 +54,7 @@ def main():
                 "results_dir": 'results/q_learning'
             }
         },
-        {
-            "name": "func_approx_lr",
+        "func_approx_lr": {
             "class": FuncApproxLRAgent,
             "params": {
                 "learning_rate": 0.01,
@@ -67,8 +65,7 @@ def main():
                 "results_dir": 'results/func_approx_lr'
             }
         },
-        {
-            "name": "actor_critic",
+        "actor_critic": {
             "class": ActorCriticAgent,
             "params": {
                 "learning_rate": 0.01,
@@ -76,19 +73,43 @@ def main():
                 "results_dir": 'results/actor_critic'
             }
         }
-    ]
+    }
 
-    # Run each agent sequentially
-    for agent_config in agents:
-        run_agent(
-            agent_class=agent_config["class"],
-            agent_name=agent_config["name"],
-            env=env,
-            **agent_config["params"]
-        )
+    if agent_name:
+        # Run only the selected agent
+        if agent_name in agents:
+            agent_config = agents[agent_name]
+            run_agent(
+                agent_class=agent_config["class"],
+                agent_name=agent_name,
+                env=env,
+                **agent_config["params"]
+            )
+        else:
+            print(f"Error: Agent '{agent_name}' not found.")
+    else:
+        # Run all agents sequentially
+        for agent_name, agent_config in agents.items():
+            run_agent(
+                agent_class=agent_config["class"],
+                agent_name=agent_name,
+                env=env,
+                **agent_config["params"]
+            )
 
     # Close the environment
     env.close()
 
+# Run specific agent: python main.py --agent q_learning
+
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser(description="Run RL agents on FrozenLake.")
+    parser.add_argument(
+        "--agent", 
+        type=str, 
+        default=None, 
+        help="Specify the name of the agent to run (e.g., 'q_learning', 'actor_critic'). Run all agents if not specified."
+    )
+    args = parser.parse_args()
+    main(agent_name=args.agent)
+
