@@ -56,17 +56,6 @@ class ActorCriticPolicyGradient(PolicyGradient):
         torch.manual_seed(0)
         np.random.seed(0)
         
-        # self.learning_rate = learning_rate
-        # self.input_dim = env.observation_space.n
-        # self.output_dim = env.action_space.n
-        
-        # self.actor_network = ActorCriticNetwork(self.input_dim, self.output_dim)
-        # self.value_network = ValueNet(self.input_dim)
-        
-        # self.actor_optimizer = optim.Adam(self.actor_network.parameters(), lr=self.learning_rate)
-        # self.value_optimizer = optim.Adam(self.value_network.parameters(), lr=self.learning_rate)
-        
-        # self.episode_rewards = []
    
     def compute_loss(self, episode, gamma):
         states, actions, rewards = zip(*episode)
@@ -143,43 +132,6 @@ class ActorCriticPolicyGradient(PolicyGradient):
                 print(f"Episode {i}, Average Reward: {np.mean(avg_rewards[-100:]):.2f}")
         
         return avg_rewards
-    
-    # def run_episode(self):
-    #     state, _ = self.env.reset()
-    #     done = False
-    #     episode = []
-        
-    #     while not done:
-    #         action = self.select_action(state)
-    #         next_state, reward, terminated, truncated, _ = self.env.step(action)
-    #         done = terminated or truncated
-    #         episode.append((state, action, reward))
-    #         state = next_state
-        
-    #     return episode
-    
-    # def evaluate(self, num_eval_episodes=100):
-    #     total_rewards = 0
-    #     for _ in range(num_eval_episodes):
-    #         state, _ = self.env.reset()
-    #         done = False
-    #         while not done:
-    #             action = torch.argmax(self.policy_net(self._state_to_tensor(state))).item()
-    #             state, reward, terminated, truncated, _ = self.env.step(action)
-    #             done = terminated or truncated
-    #             total_rewards += reward
-        
-    #     avg_reward = total_rewards / num_eval_episodes
-    #     print(f"Average Reward over {num_eval_episodes} evaluation episodes: {avg_reward}")
-        
-    #     data_dir = os.path.join(self.results_dir, 'data')
-    #     os.makedirs(data_dir, exist_ok=True)
-        
-    #     with open(os.path.join(data_dir, 'evaluation_results.txt'), 'w') as f:
-    #         f.write(f"Average Reward: {avg_reward}\n")
-    #         f.write(f"Number of Evaluation Episodes: {num_eval_episodes}")
-        
-    #     return avg_reward 
 
 class ActorCriticAgent:
     def __init__(self, env, state_dim, action_dim, hidden_dim, gamma=0.99, learning_rate=0.01, results_dir='results/actor_critic'):
