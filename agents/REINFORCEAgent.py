@@ -3,8 +3,8 @@ import gymnasium as gym
 import matplotlib.pyplot as plt
 import os
 
-import tensorflow as tf
-from functools import reduce
+# import tensorflow as tf
+# from functools import reduce
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -67,7 +67,7 @@ class PolicyGradient:
     action = dist.sample()
     return action.item()
 
-  def compute_loss(self, episode):
+  def compute_loss(self, episode, gamma):
     states, actions, rewards = zip(*episode)
     states = torch.tensor(states).float().to(self.device)
 
@@ -78,42 +78,28 @@ class PolicyGradient:
     actions = torch.tensor(actions).to(self.device)
     rewards = torch.tensor(rewards).to(self.device)
 
-    # print(f"States tensor shape: {states.shape}")
-    # print(f"States shape (before one-hot): {len(states)}, Actions shape: {actions.shape}")
-    # print(f"One-hot states shape: {one_hot_states.shape}")
-
+    # Compute discounted rewards
     discounted_rewards = []
-
-    # not using reward-to-go,,, as of now!
-
-    # if not self.reward_to_go:
-    #   sum_discounted_reward = 0
-    #   for reward in reversed(rewards):
-    #     sum_discounted_reward = reward + self.gamma * sum_discounted_reward
-    #     discounted_rewards.insert(0, sum_discounted_reward)
-    #   discounted_rewards = len(rewards) * [discounted_rewards[0]]
-    # else:
-    #   for t in range(len(rewards)):
-    #     sum_discounted_reward = 0
-    #     for t_prime, reward in enumerate(rewards[t:]):
-    #       sum_discounted_reward += reward * (self.gamma ** t_prime)
-    #     discounted_rewards.append(sum_discounted_reward)
-  
     sum_discounted_reward = 0
-
     for reward in reversed(rewards):
-      sum_discounted_reward = reward + self.gamma * sum_discounted_reward
-      discounted_rewards.insert(0, sum_discounted_reward)
+        sum_discounted_reward = reward + gamma * sum_discounted_reward
+        discounted_rewards.insert(0, sum_discounted_reward)
 
-    # discounted_rewards = len(rewards) * [discounted_rewards[0]]
-    # discounted_rewards = torch.FloatTensor(discounted_rewards).to(self.device)
     discounted_rewards = torch.tensor(discounted_rewards).float().to(self.device)
 
+    # Compute advantages
+    values = self.value_net(one_hot_states).squeeze()  # Predicted state values
+    advantages = discounted_rewards - values
+
+    # Compute policy loss
     log_probs = torch.log(self.policy_net(one_hot_states))
     log_probs_actions = log_probs[np.arange(len(actions)), actions]
-    loss = -torch.sum(log_probs_actions * discounted_rewards)
+    policy_loss = -torch.sum(log_probs_actions * advantages) / len(rewards)
 
-    return loss
+    # Compute value loss
+    value_loss = torch.sum(advantages ** 2) / len(rewards)
+
+    return policy_loss, value_loss
 
   def update_policy(self, episodes):
     total_loss = 0
@@ -148,6 +134,8 @@ class PolicyGradient:
       if i % 10 == 0:
         avg_reward = self.evaluate(10)
         avg_rewards.append(avg_reward)
+      if i % 100 == 0:
+                print(f"Episode {i}, Average Reward: {np.mean(avg_rewards[-100:]):.2f}")
     return avg_rewards
   
   def evaluate(self, num_episodes=100):
@@ -170,7 +158,10 @@ class PolicyGradient:
     return avg_total_reward
 
 class ReinforceAgent:
-  def __init__(self, env, state_dim, action_dim, hidden_dim, gamma=0.99, learning_rate=0.001, reward_to_go=False, results_dir='results/q_learning'):
+  def select_action(self, state):
+    return self.policy_gradient.select_action(state)
+  
+  def __init__(self, env, state_dim, action_dim, hidden_dim, gamma=0.99, learning_rate=0.01, reward_to_go=False, results_dir='results/q_learning'):
     # Create results directory
     self.results_dir = results_dir
     os.makedirs(self.results_dir, exist_ok=True)
@@ -218,7 +209,7 @@ class ReinforceAgent:
       done = False
       while not done:
         action = self.select_action(state)
-        state, reward, done, _ = self.env.step(action)
+        state, reward, done, _ , _= self.env.step(action)
         total_rewards += reward
     
     avg_reward = total_rewards / num_eval_episodes
@@ -251,14 +242,14 @@ class ReinforceAgent:
     )
     
     # Reset environment and play the best episode
-    state = record_env.reset()
+    state, _ = record_env.reset()
     done = False
     total_reward = 0
     
     while not done:
       # Choose action based on learned policy
       action = self.policy_gradient.select_action(state)
-      state, reward, done, _ = record_env.step(action)
+      state, reward, done, _, _ = record_env.step(action)
       total_reward += reward
     
     print(f"Best Play Recorded. Total Reward: {total_reward}")
