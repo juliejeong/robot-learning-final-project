@@ -87,30 +87,22 @@ class PolicyGradient:
 
     discounted_rewards = torch.tensor(discounted_rewards).float().to(self.device)
 
-    # Compute advantages
-    values = self.value_net(one_hot_states).squeeze()  # Predicted state values
-    advantages = discounted_rewards - values
-
-    # Compute policy loss
     log_probs = torch.log(self.policy_net(one_hot_states))
     log_probs_actions = log_probs[np.arange(len(actions)), actions]
-    policy_loss = -torch.sum(log_probs_actions * advantages) / len(rewards)
+    loss = -torch.sum(log_probs_actions * discounted_rewards)
 
-    # Compute value loss
-    value_loss = torch.sum(advantages ** 2) / len(rewards)
+    return loss
 
-    return policy_loss, value_loss
-
-  def update_policy(self, episodes):
+  def update_policy(self, episodes, optimizer, gamma):
     total_loss = 0
     for episode in episodes:
-      loss = self.compute_loss(episode)
+      loss = self.compute_loss(episode, gamma)
       total_loss += loss
 
     total_loss = total_loss / len(episodes)
-    self.optimizer.zero_grad()
+    optimizer.zero_grad()
     total_loss.backward()
-    self.optimizer.step()
+    optimizer.step()
 
   def run_episode(self):
     state, _ = self.env.reset()
@@ -125,12 +117,14 @@ class PolicyGradient:
       state = next_state
     return episode
 
-  def train(self, num_iterations, batch_size):
+  def train(self, num_iterations, batch_size, gamma, learning_rate):
     self.policy_net.train()
+    optimizer = torch.optim.Adam(self.policy_net.parameters(), lr=learning_rate)
+
     avg_rewards = []
     for i in range(num_iterations):
       episodes = [self.run_episode() for _ in range(batch_size)]
-      self.update_policy(episodes)
+      self.update_policy(episodes, optimizer, gamma)
       if i % 10 == 0:
         avg_reward = self.evaluate(10)
         avg_rewards.append(avg_reward)
@@ -167,12 +161,16 @@ class ReinforceAgent:
     os.makedirs(self.results_dir, exist_ok=True)
 
     self.env = env
+
+    self.gamma = gamma
+    self.learning_rate = learning_rate
+    
     self.policy_net = PolicyNet(state_dim, action_dim, hidden_dim)
     self.policy_gradient = PolicyGradient(env, self.policy_net, gamma, learning_rate, reward_to_go)
     self.rewards = []
 
   def train(self, num_episodes):
-    self.rewards = self.policy_gradient.train(num_iterations=num_episodes, batch_size=10)
+    self.rewards = self.policy_gradient.train(num_iterations=num_episodes, batch_size=10, gamma=self.gamma, learning_rate=self.learning_rate)
     return self.rewards
 
   def plot_rewards(self):
