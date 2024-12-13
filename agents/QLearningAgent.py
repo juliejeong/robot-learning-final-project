@@ -81,7 +81,8 @@ class QLearningAgent:
             if episode % 1000 == 0:
                 print(f"Episode {episode}, Average Reward: {np.mean(self.episode_rewards[-1000:]):.2f}")
         
-        return self.episode_rewards
+        return np.cumsum(self.episode_rewards) / np.arange(1, len(self.episode_rewards) + 1)
+        # return self.episode_rewards
     
     def record_best_play(self):
         """

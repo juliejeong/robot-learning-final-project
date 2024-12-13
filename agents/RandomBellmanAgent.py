@@ -58,7 +58,8 @@ class RandomBellmanAgent:
                 avg_reward = np.mean(self.episode_rewards[-1000:])
                 print(f"Episode {episode}, Average Reward: {avg_reward:.2f}")
 
-        return self.episode_rewards
+        # return self.episode_rewards
+        return np.cumsum(self.episode_rewards) / np.arange(1, len(self.episode_rewards) + 1)
 
     def evaluate(self, num_eval_episodes=100):
         """
@@ -85,7 +86,7 @@ class RandomBellmanAgent:
         with open(os.path.join(data_dir, 'evaluation_results.txt'), 'w') as f:
             f.write(f"Average Reward: {avg_reward}\n")
             f.write(f"Number of Evaluation Episodes: {num_eval_episodes}")
-            
+
         return avg_reward
 
     def plot_rewards(self):
