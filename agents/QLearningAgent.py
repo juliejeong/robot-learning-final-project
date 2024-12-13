@@ -54,6 +54,7 @@ class QLearningAgent:
         """
         Train the agent and return episode rewards
         """
+        avg_rewards = []
         for episode in range(num_episodes):
             state, _ = self.env.reset()
             done = False
@@ -74,14 +75,20 @@ class QLearningAgent:
             # Decay epsilon
             self.epsilon = max(self.epsilon_min, self.epsilon * self.epsilon_decay)
 
+            # if (episode % 10 == 0):
+            #     self.episode_rewards.append(total_reward)
+
+            self.episode_rewards.append(total_reward)
+
             if (episode % 10 == 0):
-                self.episode_rewards.append(total_reward)
+                avg_rewards.append(np.mean(self.episode_rewards[-10:]))
 
             # Print progress
             if episode % 1000 == 0:
                 print(f"Episode {episode}, Average Reward: {np.mean(self.episode_rewards[-1000:]):.2f}")
         
-        return np.cumsum(self.episode_rewards) / np.arange(1, len(self.episode_rewards) + 1)
+        return avg_rewards
+        # return np.cumsum(self.episode_rewards) / np.arange(1, len(self.episode_rewards) + 1)
         # return self.episode_rewards
     
     def record_best_play(self):

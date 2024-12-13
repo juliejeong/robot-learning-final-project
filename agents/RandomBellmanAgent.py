@@ -34,6 +34,8 @@ class RandomBellmanAgent:
         """
         Train the agent using random actions and Bellman updates.
         """
+        avg_rewards = []
+
         for episode in range(num_episodes):
             state, _ = self.env.reset()
             done = False
@@ -50,8 +52,11 @@ class RandomBellmanAgent:
                 state = next_state
                 total_reward += reward
 
+            self.episode_rewards.append(total_reward)
+
             if (episode % 10 == 0):
-                self.episode_rewards.append(total_reward)
+                avg_rewards.append(np.mean(self.episode_rewards[-10:]))
+                # print(np.mean(self.episode_rewards[-10:]))
 
             # Log progress every 1000 episodes
             if episode % 1000 == 0:
@@ -59,7 +64,7 @@ class RandomBellmanAgent:
                 print(f"Episode {episode}, Average Reward: {avg_reward:.2f}")
 
         # return self.episode_rewards
-        return np.cumsum(self.episode_rewards) / np.arange(1, len(self.episode_rewards) + 1)
+        return avg_rewards
 
     def evaluate(self, num_eval_episodes=100):
         """

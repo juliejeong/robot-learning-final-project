@@ -24,6 +24,7 @@ def run_agent(agent_class, agent_name, env, num_episodes, **agent_params):
     agent = agent_class(env, **agent_params)
 
     rewards = agent.train(num_episodes=num_episodes)
+    print(rewards)
     
     rewards_dir = os.path.join(results_dir, "rewards")
     os.makedirs(rewards_dir, exist_ok=True)
