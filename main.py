@@ -37,7 +37,6 @@ def reseed(seed):
     np.random.seed(seed)
 
 def main(agent_name="q_learning", size=4, is_slippery=False, num_episodes=1000):
-
     env = gym.make('FrozenLake-v1', desc=generate_random_map(size=size), is_slippery=is_slippery, render_mode='rgb_array')
 
     reseed(695)
