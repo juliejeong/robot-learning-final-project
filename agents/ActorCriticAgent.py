@@ -128,8 +128,12 @@ class ActorCriticPolicyGradient(PolicyGradient):
                 avg_reward = self.evaluate(10)
                 avg_rewards.append(avg_reward)
             
-            if i % 100 == 0:
-                print(f"Episode {i}, Average Reward: {np.mean(avg_rewards[-100:]):.2f}")
+            if(num_iterations > 1000):
+                if i % 1000 == 0:
+                    print(f"Episode {i}, Average Reward: {np.mean(avg_rewards[-1000:]):.2f}")
+            else:
+                if i % 100 == 0:
+                    print(f"Episode {i}, Average Reward: {np.mean(avg_rewards[-100:]):.2f}")
         
         return avg_rewards
 
