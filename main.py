@@ -24,6 +24,11 @@ def run_agent(agent_class, agent_name, env, num_episodes, **agent_params):
     agent = agent_class(env, **agent_params)
 
     rewards = agent.train(num_episodes=num_episodes)
+    
+    rewards_dir = os.path.join(results_dir, "rewards")
+    os.makedirs(rewards_dir, exist_ok=True)
+    np.savetxt(os.path.join(rewards_dir, "rewards.txt"), rewards)
+    
     agent.evaluate()
     agent.plot_rewards()
     agent.record_best_play()

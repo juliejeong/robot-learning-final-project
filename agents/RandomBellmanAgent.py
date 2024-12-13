@@ -50,7 +50,8 @@ class RandomBellmanAgent:
                 state = next_state
                 total_reward += reward
 
-            self.episode_rewards.append(total_reward)
+            if (episode % 10 == 0):
+                self.episode_rewards.append(total_reward)
 
             # Log progress every 1000 episodes
             if episode % 1000 == 0:
@@ -76,6 +77,15 @@ class RandomBellmanAgent:
 
         avg_reward = total_rewards / num_eval_episodes
         print(f"Evaluation Complete: Average Reward = {avg_reward:.2f}")
+
+         # Save evaluation results
+        data_dir = os.path.join(self.results_dir, 'data')
+        os.makedirs(data_dir, exist_ok=True)
+        
+        with open(os.path.join(data_dir, 'evaluation_results.txt'), 'w') as f:
+            f.write(f"Average Reward: {avg_reward}\n")
+            f.write(f"Number of Evaluation Episodes: {num_eval_episodes}")
+            
         return avg_reward
 
     def plot_rewards(self):

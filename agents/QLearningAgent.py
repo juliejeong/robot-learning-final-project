@@ -73,8 +73,10 @@ class QLearningAgent:
             
             # Decay epsilon
             self.epsilon = max(self.epsilon_min, self.epsilon * self.epsilon_decay)
-            self.episode_rewards.append(total_reward)
-            
+
+            if (episode % 10 == 0):
+                self.episode_rewards.append(total_reward)
+
             # Print progress
             if episode % 1000 == 0:
                 print(f"Episode {episode}, Average Reward: {np.mean(self.episode_rewards[-1000:]):.2f}")
