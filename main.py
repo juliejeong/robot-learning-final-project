@@ -14,7 +14,7 @@ from agents.ActorCriticAgent import ActorCriticAgent
 from agents.REINFORCEAgent import ReinforceAgent
 
 
-def run_agent(agent_class, agent_name, env, **agent_params):
+def run_agent(agent_class, agent_name, env, num_episodes, **agent_params):
     """
     Train, evaluate, and save results for an agent.
     """
@@ -23,7 +23,7 @@ def run_agent(agent_class, agent_name, env, **agent_params):
     os.makedirs(results_dir, exist_ok=True)
     agent = agent_class(env, **agent_params)
 
-    rewards = agent.train(num_episodes=1000)
+    rewards = agent.train(num_episodes=num_episodes)
     agent.evaluate()
     agent.plot_rewards()
     agent.record_best_play()
@@ -36,9 +36,9 @@ def reseed(seed):
     random.seed(seed)
     np.random.seed(seed)
 
-def main(agent_name = "q_learning", size = 4, is_slippery = False):
+def main(agent_name="q_learning", size=4, is_slippery=False, num_episodes=1000):
 
-    env = gym.make('FrozenLake-v1', desc=generate_random_map(size = size), is_slippery = is_slippery, render_mode = 'rgb_array')
+    env = gym.make('FrozenLake-v1', desc=generate_random_map(size=size), is_slippery=is_slippery, render_mode='rgb_array')
 
     reseed(695)
     env.reset()
@@ -80,23 +80,26 @@ def main(agent_name = "q_learning", size = 4, is_slippery = False):
                 "results_dir": 'results/func_approx_lr'
             }
         },
-        "actor_critic": {
-            "class": ActorCriticAgent,
-            "params": {
-                "learning_rate": 0.01,
-                "gamma": 0.99,
-                "results_dir": 'results/actor_critic'
-            }
-        },
         "reinforce": {
             "class": ReinforceAgent,
             "params": {
-            "state_dim": env.observation_space.n,
-            "action_dim": env.action_space.n,
-            "hidden_dim": 16,
-            "gamma": 0.99,
-            "learning_rate": 0.01,
-            "results_dir": 'results/reinforce'
+                "state_dim": env.observation_space.n,
+                "action_dim": env.action_space.n,
+                "hidden_dim": 16,
+                "gamma": 0.99,
+                "learning_rate": 0.01,
+                "results_dir": 'results/reinforce'
+            }
+        },
+        "actor_critic": {
+            "class": ActorCriticAgent,
+            "params": {
+                "state_dim": env.observation_space.n,
+                "action_dim": env.action_space.n,
+                "hidden_dim": 16,
+                "gamma": 0.99,
+                "learning_rate": 0.01,
+                "results_dir": 'results/actor_critic'
             }
         }
     }
@@ -109,6 +112,7 @@ def main(agent_name = "q_learning", size = 4, is_slippery = False):
                 agent_class=agent_config["class"],
                 agent_name=agent_name,
                 env=env,
+                num_episodes=num_episodes,
                 **agent_config["params"]
             )
         else:
@@ -120,13 +124,14 @@ def main(agent_name = "q_learning", size = 4, is_slippery = False):
                 agent_class=agent_config["class"],
                 agent_name=agent_name,
                 env=env,
+                num_episodes=num_episodes,
                 **agent_config["params"]
             )
 
     # Close the environment
     env.close()
 
-# Run specific agent: python main.py --agent q_learning --size 4 --is_slippery False
+# Run specific agent: python main.py --agent q_learning --size 4 --is_slippery False --num_episodes 1000
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Run RL agents on FrozenLake.")
@@ -139,14 +144,20 @@ if __name__ == "__main__":
     parser.add_argument(
         "--size",
         type=int,
-        default=8,
+        default=4,
         help="Specify the size of the map."
     )
     parser.add_argument(
         "--is_slippery", 
         type=bool, 
-        default=True, 
+        default=False, 
         help="Specify whether the environment should be slippery (True or False)."
     )
+    parser.add_argument(
+        "--num_episodes",
+        type=int,
+        default=1000,
+        help="Specify the number of episodes for training."
+    )
     args = parser.parse_args()
-    main(agent_name=args.agent, size=args.size, is_slippery=args.is_slippery)
+    main(agent_name=args.agent, size=args.size, is_slippery=args.is_slippery, num_episodes=args.num_episodes)
