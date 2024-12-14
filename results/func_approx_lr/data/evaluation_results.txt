@@ -1,2 +1,0 @@
-Average Reward: 1.0
-Number of Evaluation Episodes: 100
